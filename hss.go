@@ -45,7 +45,7 @@ func saveStream(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
-	log.Println("File saved to", filePath)
+	log.Printf("File saved to %s", filePath)
 }
 
 func main() {
