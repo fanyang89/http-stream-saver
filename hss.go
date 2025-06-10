@@ -4,7 +4,6 @@ import (
 	"flag"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -38,23 +37,31 @@ func saveStream(w http.ResponseWriter, r *http.Request) {
 		_ = file.Close()
 	}()
 
-	_, err = io.Copy(z, r.Body)
+	_, err = io.Copy(file, r.Body)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Error writing file: %v", err), http.StatusInternalServerError)
 		return
 	}
 
 	w.WriteHeader(http.StatusOK)
-	log.Printf("File saved to %s", filePath)
+	_, _ = fmt.Fprintf(w, "File saved to %s\n", filePath)
 }
 
 func main() {
+	var err error
+
 	listen := flag.String("listen", ":5000", "listen address")
 	flag.StringVar(&flagBaseDir, "base-dir", "/tmp", "data directory")
 	flag.Parse()
 
+	flagBaseDir, err = filepath.Abs(flagBaseDir)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("listening on %s, base directory: %s\n", *listen, flagBaseDir)
+
 	http.HandleFunc("/", saveStream)
-	err := http.ListenAndServe(*listen, nil)
+	err = http.ListenAndServe(*listen, nil)
 	if err != nil {
 		panic(err)
 	}
