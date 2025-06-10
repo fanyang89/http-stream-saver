@@ -20,8 +20,8 @@ func saveStream(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fileName := filepath.Base(r.URL.Path)
-	if fileName == "" || fileName == "." {
-		http.Error(w, "Invalid file name", http.StatusBadRequest)
+	if len(fileName) <= 1 {
+		http.Error(w, fmt.Sprintf("Invalid file name: %s", fileName), http.StatusBadRequest)
 		return
 	}
 
